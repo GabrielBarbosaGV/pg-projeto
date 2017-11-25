@@ -1,0 +1,15 @@
+#file-selection {
+	position: absolute;
+	bottom: 10px;
+}
+
+#file-selection label {
+	display: block;
+	padding-bottom: 10px;
+	padding-left: 7px;
+}
+
+#file-selection input {
+	display: list-item;
+	padding-bottom: 10px;
+}
