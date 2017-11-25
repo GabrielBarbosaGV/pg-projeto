@@ -13,3 +13,9 @@
 	display: list-item;
 	padding-bottom: 10px;
 }
+
+#read {
+	position: absolute;
+	bottom: 20px;
+	right: 7px;
+}
