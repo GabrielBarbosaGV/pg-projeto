@@ -1,6 +1,18 @@
+// FUNÇÕES PARA LEITURA DE ARQUIVOS
+
+// FIM DE FUNÇÕES PARA LEITURA DE ARQUIVOS
+
+
+
 // FUNÇÕES PARA VETORES 
 function innerProduct(vectorA, vectorB) {
-	
+	if (vectorA.length === vectorB.length) {
+		var innerProduct = 0;
+
+		for (let coordN in vectorA) {
+			innerProduct += vectorA[coordN]*vectorB[coordN];
+		}
+	} else return NaN;
 }
 
 function normalizeVector(vector) {
