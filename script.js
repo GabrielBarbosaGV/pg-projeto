@@ -1,12 +1,5 @@
 // CONFIGURAÇÕES PRÉ-EXECUÇÃO
 
-/*
-Define novo método .last() para arrays que retorna o último elemento do array.
-Criado para selecionar o último elemento de um array resultante de uma chamada de método, sem que tenha de ser atribuído a uma variável temporária
-*/
-Array.prototype.last = () => {
-	return this[this.length - 1];
-}
 // FIM DE CONFIGURAÇÕES PRÉ-EXECUÇÃO
 
 
@@ -14,10 +7,11 @@ Array.prototype.last = () => {
 // FUNÇÕES PARA LEITURA DE ARQUIVOS
 function hasNecessaryFiles() {
 	let hasObj = false, hasCam = false, hasIll = false,
-		inputs = document.getElementById('file-selection').getElementsByTagName('input');
+	inputs = document.getElementById('file-selection').getElementsByTagName('input');
 
-	for (let inputN in inputs) {
-		let extension = inputs[inputN].files[0].name.split('.').last();
+	for (let inputN = 0;inputN < inputs.length;inputN++) {
+		let extension = inputs[inputN].files[0].name.split('.');
+		extension = extension[extension.length - 1];
 		
 		switch (extension) {
 			case 'byu':
@@ -43,17 +37,18 @@ function readFile(evt) {
 	var reader = new FileReader();
 
 	reader.onload = () => {
-		let extension = files[0].name.split('.').last();
+		let extension = files[0].name.split('.');
+		extension = extension[extension.length - 1];
 
 		switch (extension) {
 			case 'byu':
-				objectInfo = reader.result();
+				objectInfo = reader.result;
 				break;
 			case 'cfg':
-				cameraInfo = reader.result();
+				cameraInfo = reader.result;
 				break;
 			case 'txt':
-				illuminationInfo = reader.result();
+				illuminationInfo = reader.result;
 				break;
 			default:
 				alert("Unrecognised file exension, please select a recognised filetype. (.byu, .cfg, .txt)");
@@ -65,7 +60,7 @@ function readFile(evt) {
 }
 
 function interpretObjectInfo() {
-	var objectLines = objectInfo.split('\r\n');
+	var objectLines = objectInfo.split(/\r\n/).filter(i => i);
 
 	var info = objectLines[0].split(' ');
 
@@ -99,7 +94,7 @@ function interpretObjectInfo() {
 }
 
 function interpretCameraInfo() {
-	var cameraLines = cameraInfo.split('\r\n');
+	var cameraLines = cameraInfo.split(/\r\n/).filter(i => i);
 
 	var c = cameraLines[0].split(' ');
 
@@ -131,7 +126,7 @@ function interpretCameraInfo() {
 }
 
 function interpretIlluminationInfo() {
-	var illuminationLines = illuminationInfo.split('\r\n');
+	var illuminationLines = illuminationInfo.split(/\r\n/).filter(i => i);
 
 	var pl = illuminationInfo[0].split(' ');
 
@@ -221,7 +216,7 @@ var  object, camera, illumination,
 window.onload = () => {
 	let inputs = document.getElementById('file-selection').getElementsByTagName('input');
 
-	for (let inputN in inputs) {
+	for (let inputN = 0;inputN < inputs.length;inputN++) {
 		document.getElementById(inputs[inputN].id).addEventListener('change', readFile, false);
 	}
 
