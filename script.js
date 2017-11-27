@@ -181,7 +181,19 @@ function interpretData(evt) {
 
 
 
-// FUNÇÕES PARA VETORES 
+// FUNÇÕES PARA VETORES
+function vectorProduct(vectorA, vectorB) {
+	if (vectorA.length === vectorB.length === 3) {
+		var product = [];
+
+		product.push(vectorA[1]*vectorB[2] - vectorA[2]*vectorB[1]);
+		product.push(vectorA[2]*vectorB[0] - vectorA[0]*vectorB[2]);
+		product.push(vectorA[0]*vectorB[1] - vectorA[1]*vectorB[0]);
+
+		return product;
+	} else return NaN;
+}
+
 function innerProduct(vectorA, vectorB) {
 	if (vectorA.length === vectorB.length) {
 		var innerProduct = 0;
@@ -192,7 +204,7 @@ function innerProduct(vectorA, vectorB) {
 	} else return NaN;
 }
 
-function normalizeVector(vector) {
+function vectorNorm(vector) {
 	var normalVector = 0;
 
 	for (let coordN in vector) {
