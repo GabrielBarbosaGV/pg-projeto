@@ -182,18 +182,6 @@ function interpretData(evt) {
 
 
 // FUNÇÕES PARA VETORES
-function vectorProduct(vectorA, vectorB) {
-	if (vectorA.length === vectorB.length === 3) {
-		var product = [];
-
-		product.push(vectorA[1]*vectorB[2] - vectorA[2]*vectorB[1]);
-		product.push(vectorA[2]*vectorB[0] - vectorA[0]*vectorB[2]);
-		product.push(vectorA[0]*vectorB[1] - vectorA[1]*vectorB[0]);
-
-		return product;
-	} else return NaN;
-}
-
 function innerProduct(vectorA, vectorB) {
 	if (vectorA.length === vectorB.length) {
 		var innerProduct = 0;
@@ -201,6 +189,8 @@ function innerProduct(vectorA, vectorB) {
 		for (let coordN in vectorA) {
 			innerProduct += vectorA[coordN]*vectorB[coordN];
 		}
+
+		return innerProduct;
 	} else return NaN;
 }
 
@@ -214,8 +204,29 @@ function vectorNorm(vector) {
 	return Math.sqrt(normalVector);
 }
 
-function gramSchmidt(toChange, referenceVector) {
+function projectVector(toProject, referenceVector) {
+	let proportion = innerProduct(toProject, referenceVector)*innerProduct(referenceVector, referenceVector),
+		projectedVector = [];
 
+	for (let coordN in referenceVector) projectedVector.push(referenceVector[coordN]*proportion);
+
+	return projectedVector;
+}
+
+function gramSchmidt(toChange, referenceVector) {
+	return toChange - projectVector(toChange, referenceVector);
+}
+
+function vectorProduct(vectorA, vectorB) {
+	if (vectorA.length === vectorB.length === 3) {
+		var vectorProduct = [];
+
+		vectorProduct.push(vectorA[1]*vectorB[2] - vectorA[2]*vectorB[1]);
+		vectorProduct.push(vectorA[2]*vectorB[0] - vectorA[0]*vectorB[2]);
+		vectorProduct.push(vectorA[0]*vectorB[1] - vectorA[1]*vectorB[0]);
+
+		return product;
+	} else return NaN;
 }
 // FIM DE FUNÇÕES PARA VETORES
 
