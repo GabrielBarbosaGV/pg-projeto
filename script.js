@@ -185,13 +185,19 @@ function interpretData(evt) {
 
 
 // FUNÇÕES PARA VETORES
+function vectorSum(vectorA, vectorB) {
+	if (vectorA.length === vectorB.length) {
+		var sumVector = []
+		for (let coordN in vectorA) sumVector.push(vectorA[coordN] + vectorB[coordN]);
+
+		return sumVector;
+	} else return NaN;
+}
+
 function innerProduct(vectorA, vectorB) {
 	if (vectorA.length === vectorB.length) {
 		var innerProduct = 0;
-
-		for (let coordN in vectorA) {
-			innerProduct += vectorA[coordN]*vectorB[coordN];
-		}
+		for (let coordN in vectorA) innerProduct += vectorA[coordN]*vectorB[coordN];
 
 		return innerProduct;
 	} else return NaN;
