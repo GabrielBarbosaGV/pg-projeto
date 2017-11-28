@@ -118,6 +118,7 @@ function interpretCameraInfo() {
 		c: c,
 		n: n,
 		v: v,
+		u: 0,
 		d: dhxhy[0],
 		hx: dhxhy[1],
 		hy: dhxhy[2]
