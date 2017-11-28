@@ -195,14 +195,14 @@ function innerProduct(vectorA, vectorB) {
 	} else return NaN;
 }
 
-function normalizeVector(vector) {
-	var normalVector = 0;
+function getVersor(vector) {
+	var versor = 0;
 
 	for (let coordN in vector) {
-		normalVector += Math.pow(vector[coordN], 2);
+		versor += Math.pow(vector[coordN], 2);
 	}
 
-	return Math.sqrt(normalVector);
+	return Math.sqrt(versor);
 }
 
 function gramSchmidt(toChange, referenceVector) {
