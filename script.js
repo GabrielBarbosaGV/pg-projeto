@@ -188,6 +188,16 @@ function interpretData(evt) {
 }
 // FIM DE FUNÇÕES PARA LEITURA DE ARQUIVOS
 
+// FUNÇÕES PARA PONTOS
+function pointSubtraction(pointA, toSubtract) {
+	if (pointA.point.length === toSubtract.point.length) {
+		var resultVector = [];
+		for (let coordN in pointA.point) resultVector.push(pointA.point[coordN] - toSubtract.point[coordN]);
+
+		return resultVector;
+	} else return NaN;
+}
+// FIM DE FUNÇÕES PARA PONTOS
 
 
 // FUNÇÕES PARA VETORES
