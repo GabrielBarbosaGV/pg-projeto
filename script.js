@@ -82,15 +82,24 @@ function interpretObjectInfo() {
 	var triangles = [];
 
 	for (let line = 1 + info[0];line < info[1] + 1 + info[0];line++) {
-		var triangle = objectLines[line].split(' '), normal = [];
+		var triangle = objectLines[line].split(' ');
 
-		for (let i in triangle) {
-		       	triangle[i] = parseInt(triangle[i]) - 1;
-			normal.push(0);
-		}
+		for (let i in triangle) triangle[i] = parseInt(triangle[i]) - 1;
+
+		let edgeA = pointSubtraction(points[triangle[0]], points[triangle[1]]),
+			edgeB = pointSubtraction(points[triangle[1]], points[triangle[2]]);
+
+
+		var normal = normalizeVector(vectorProduct(edgeA, edgeB));
+
+
+		for (let i in triangle) points[triangle[i]].normal = vectorSum(points[triangle[i]].normal, normal);
+
 
 		triangles.push({triangle: triangle, normal: normal});
 	}
+
+	for (let pointN in points) points[pointN].normal = normalizeVector(points[pointN].normal);
 
 	return {
 		points: points,
@@ -267,7 +276,7 @@ function vectorProduct(vectorA, vectorB) {
 		vectorProduct.push(vectorA[2]*vectorB[0] - vectorA[0]*vectorB[2]);
 		vectorProduct.push(vectorA[0]*vectorB[1] - vectorA[1]*vectorB[0]);
 
-		return product;
+		return vectorProduct;
 	} else return NaN;
 }
 // FIM DE FUNÇÕES PARA VETORES
