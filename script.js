@@ -195,6 +195,11 @@ function innerProduct(vectorA, vectorB) {
 	} else return NaN;
 }
 
+function normalizeVector(vector) {
+	var normalVector = vector, versor = getVersor(vector);
+
+	for (let coordN in normalVector) normalVector[coordN] = normalVector[coordN]/versor;
+
 function getVersor(vector) {
 	var versor = 0;
 
