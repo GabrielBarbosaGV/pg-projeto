@@ -194,6 +194,15 @@ function vectorSum(vectorA, vectorB) {
 	} else return NaN;
 }
 
+function vectorSubtraction(vectorA, toSubtract) {
+	if (vectorA.length === toSubtract.length) {
+		var subtractionVector = [];
+		for (let coordN in vectorA) subractionVector.push(vectorA[coordN] - toSubtract[coordN]);
+		
+		return subtractionVector;
+	} else return NaN;
+}
+
 function innerProduct(vectorA, vectorB) {
 	if (vectorA.length === vectorB.length) {
 		var innerProduct = 0;
