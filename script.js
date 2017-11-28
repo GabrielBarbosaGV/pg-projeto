@@ -24,7 +24,6 @@ function hasNecessaryFiles() {
 				hasIll = true;
 				break;
 			default:
-				alert('Please insert valid files.');
 				return false;
 		}
 	}
