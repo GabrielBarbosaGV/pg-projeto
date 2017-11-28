@@ -82,11 +82,14 @@ function interpretObjectInfo() {
 	var triangles = [];
 
 	for (let line = 1 + info[0];line < info[1] + 1 + info[0];line++) {
-		var triangle = objectLines[line].split(' ');
+		var triangle = objectLines[line].split(' '), normal = [];
 
-		for (let i in triangle) triangle[i] = parseInt(triangle[i]) - 1;
+		for (let i in triangle) {
+		       	triangle[i] = parseInt(triangle[i]) - 1;
+			normal.push(0);
+		}
 
-		triangles.push(triangle);
+		triangles.push({triangle: triangle, normal: normal});
 	}
 
 	return {
