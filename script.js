@@ -175,6 +175,9 @@ function interpretData(evt) {
 		camera = interpretCameraInfo();
 		object = interpretObjectInfo();
 		illumination = interpretIlluminationInfo();
+
+		camera.v = gramSchmidt(camera.v, camera.n);
+		camera.u = vectorProduct(camera.n, camera.v);
 	} else alert('Please input valid files.');
 }
 // FIM DE FUNÇÕES PARA LEITURA DE ARQUIVOS
@@ -206,7 +209,6 @@ function gramSchmidt(toChange, referenceVector) {
 
 }
 // FIM DE FUNÇÕES PARA VETORES
-
 
 
 //EXECUÇÃO:
