@@ -69,11 +69,14 @@ function interpretObjectInfo() {
 	var points = [];
 
 	for (let line = 1;line < info[0] + 1;line++) {
-		var point = objectLines[line + 1].split(' ');
+		var point = objectLines[line + 1].split(' '), normal = [];
 
-		for (let coord in point) point[coord] = parseFloat(point[coord]);
+		for (let coord in point) {
+		       	point[coord] = parseFloat(point[coord]);
+			normal.push(0);
+		}
 
-		points.push(point);
+		points.push({point: point, normal: normal});
 	}
 
 	var triangles = [];
