@@ -143,35 +143,35 @@ function interpretCameraInfo() {
 function interpretIlluminationInfo() {
 	var illuminationLines = illuminationInfo.split(/\r\n/).filter(i => i);
 
-	var pl = illuminationInfo[0].split(' ').filter(i => i);
+	var pl = illuminationLines[0].split(' ').filter(i => i);
 
 	for (let i in pl) pl[i] = parseFloat(pl[i]);
 
-	var ka = parseFloat(illuminationInfo[1]);
+	var ka = parseFloat(illuminationLines[1]);
 
 
-	var ia = illuminationInfo[2].split(' ').filter(i => i);
+	var ia = illuminationLines[2].split(' ').filter(i => i);
 
 	for (let i in ia) ia[i] = parseFloat(ia[i]);
 
 
-	var kd = parseFloat(illuminationInfo[3]);
+	var kd = parseFloat(illuminationLines[3]);
 
 
-	var od = illuminationInfo[4].split(' ').filter(i => i);
+	var od = illuminationLines[4].split(' ').filter(i => i);
 
 	for (let i in od) od[i] = parseFloat(od[i]);
 
 
-	var ks = parseFloat(illuminationInfo[5]);
+	var ks = parseFloat(illuminationLines[5]);
 
 
-	var il = illuminationInfo[6].split(' ').filter(i => i);
+	var il = illuminationLines[6].split(' ').filter(i => i);
 
 	for (let i in il) il[i] = parseInt(il[i]);
 
 
-	var n = parseFloat(illuminationInfo[7]);
+	var n = parseFloat(illuminationLines[7]);
 
 	return {
 		pl: pl,
@@ -193,6 +193,10 @@ function interpretData(evt) {
 
 		camera.v = normalizeVector(gramSchmidt(camera.v, camera.n));
 		camera.u = vectorProduct(camera.n, camera.v);
+
+		for (let pointN in object.points) object.points[pointN].point = pointSubtraction(object.points[pointN], {point: camera.c});
+
+		illumination.pl = pointSubtraction({point: illumination.pl}, {point: camera.c});
 	} else alert('Please input valid files.');
 }
 // FIM DE FUNÇÕES PARA LEITURA DE ARQUIVOS
