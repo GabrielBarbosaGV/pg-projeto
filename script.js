@@ -69,22 +69,37 @@ function interpretObjectInfo() {
 	var points = [];
 
 	for (let line = 1;line < info[0] + 1;line++) {
-		var point = objectLines[line + 1].split(' ');
+		var point = objectLines[line + 1].split(' ').filter(i => i), normal = [];
 
-		for (let coord in point) point[coord] = parseFloat(point[coord]);
+		for (let coord in point) {
+		       	point[coord] = parseFloat(point[coord]);
+			normal.push(0);
+		}
 
-		points.push(point);
+		points.push({point: point, normal: normal});
 	}
 
 	var triangles = [];
 
 	for (let line = 1 + info[0];line < info[1] + 1 + info[0];line++) {
-		var triangle = objectLines[line].split(' ');
+		var triangle = objectLines[line].split(' ').filter(i => i);
 
 		for (let i in triangle) triangle[i] = parseInt(triangle[i]) - 1;
 
-		triangles.push(triangle);
+		let edgeA = pointSubtraction(points[triangle[0]], points[triangle[1]]),
+			edgeB = pointSubtraction(points[triangle[1]], points[triangle[2]]);
+
+
+		var normal = normalizeVector(vectorProduct(edgeA, edgeB));
+
+
+		for (let i in triangle) points[triangle[i]].normal = vectorSum(points[triangle[i]].normal, normal);
+
+
+		triangles.push({triangle: triangle, normal: normal});
 	}
+
+	for (let pointN in points) points[pointN].normal = normalizeVector(points[pointN].normal);
 
 	return {
 		points: points,
@@ -95,22 +110,22 @@ function interpretObjectInfo() {
 function interpretCameraInfo() {
 	var cameraLines = cameraInfo.split(/\r\n/).filter(i => i);
 
-	var c = cameraLines[0].split(' ');
+	var c = cameraLines[0].split(' ').filter(i => i);
 
 	for (let coord in c) c[coord] = parseFloat(c[coord]);
 
 
-	var n = cameraLines[1].split(' ');
+	var n = cameraLines[1].split(' ').filter(i => i);
 
 	for (let coord in n) n[coord] = parseFloat(n[coord]);
 
 
-	var v = cameraLines[2].split(' ');
+	var v = cameraLines[2].split(' ').filter(i => i);
 
 	for (let coord in v) v[coord] = parseFloat(v[coord]);
 
 
-	var dhxhy = cameraLines[3].split(' ');
+	var dhxhy = cameraLines[3].split(' ').filter(i => i);
 
 	for (let val in dhxhy) dhxhy[val] = parseFloat(dhxhy[val]);
 
@@ -128,35 +143,35 @@ function interpretCameraInfo() {
 function interpretIlluminationInfo() {
 	var illuminationLines = illuminationInfo.split(/\r\n/).filter(i => i);
 
-	var pl = illuminationInfo[0].split(' ');
+	var pl = illuminationLines[0].split(' ').filter(i => i);
 
 	for (let i in pl) pl[i] = parseFloat(pl[i]);
 
-	var ka = parseFloat(illuminationInfo[1]);
+	var ka = parseFloat(illuminationLines[1]);
 
 
-	var ia = illuminationInfo[2].split(' ');
+	var ia = illuminationLines[2].split(' ').filter(i => i);
 
 	for (let i in ia) ia[i] = parseFloat(ia[i]);
 
 
-	var kd = parseFloat(illuminationInfo[3]);
+	var kd = parseFloat(illuminationLines[3]);
 
 
-	var od = illuminationInfo[4].split(' ');
+	var od = illuminationLines[4].split(' ').filter(i => i);
 
 	for (let i in od) od[i] = parseFloat(od[i]);
 
 
-	var ks = parseFloat(illuminationInfo[5]);
+	var ks = parseFloat(illuminationLines[5]);
 
 
-	var il = illuminationInfo[6].split(' ');
+	var il = illuminationLines[6].split(' ').filter(i => i);
 
 	for (let i in il) il[i] = parseInt(il[i]);
 
 
-	var n = parseFloat(illuminationInfo[7]);
+	var n = parseFloat(illuminationLines[7]);
 
 	return {
 		pl: pl,
@@ -176,35 +191,72 @@ function interpretData(evt) {
 		object = interpretObjectInfo();
 		illumination = interpretIlluminationInfo();
 
-		camera.v = gramSchmidt(camera.v, camera.n);
+		camera.v = normalizeVector(gramSchmidt(camera.v, camera.n));
 		camera.u = vectorProduct(camera.n, camera.v);
+
+		for (let pointN in object.points) object.points[pointN].point = pointSubtraction(object.points[pointN], {point: camera.c});
+
+		illumination.pl = pointSubtraction({point: illumination.pl}, {point: camera.c});
 	} else alert('Please input valid files.');
 }
 // FIM DE FUNÇÕES PARA LEITURA DE ARQUIVOS
 
+// FUNÇÕES PARA PONTOS
+function pointSubtraction(pointA, toSubtract) {
+	if (pointA.point.length === toSubtract.point.length) {
+		var resultVector = [];
+		for (let coordN in pointA.point) resultVector.push(pointA.point[coordN] - toSubtract.point[coordN]);
+
+		return resultVector;
+	} else return NaN;
+}
+// FIM DE FUNÇÕES PARA PONTOS
 
 
 // FUNÇÕES PARA VETORES
+function vectorSum(vectorA, vectorB) {
+	if (vectorA.length === vectorB.length) {
+		var sumVector = []
+		for (let coordN in vectorA) sumVector.push(vectorA[coordN] + vectorB[coordN]);
+
+		return sumVector;
+	} else return NaN;
+}
+
+function vectorSubtraction(vectorA, toSubtract) {
+	if (vectorA.length === toSubtract.length) {
+		var subtractionVector = [];
+		for (let coordN in vectorA) subtractionVector.push(vectorA[coordN] - toSubtract[coordN]);
+		
+		return subtractionVector;
+	} else return NaN;
+}
+
 function innerProduct(vectorA, vectorB) {
 	if (vectorA.length === vectorB.length) {
 		var innerProduct = 0;
-
-		for (let coordN in vectorA) {
-			innerProduct += vectorA[coordN]*vectorB[coordN];
-		}
+		for (let coordN in vectorA) innerProduct += vectorA[coordN]*vectorB[coordN];
 
 		return innerProduct;
 	} else return NaN;
 }
 
+function normalizeVector(vector) {
+	var normalVector = vector, norm = vectorNorm(vector);
+
+	for (let coordN in normalVector) normalVector[coordN] = normalVector[coordN]/norm;
+
+	return normalVector;
+}
+
 function vectorNorm(vector) {
-	var normalVector = 0;
+	var norm = 0;
 
 	for (let coordN in vector) {
-		normalVector += Math.pow(vector[coordN], 2);
+		norm += Math.pow(vector[coordN], 2);
 	}
 
-	return Math.sqrt(normalVector);
+	return Math.sqrt(norm);
 }
 
 function projectVector(toProject, referenceVector) {
@@ -217,18 +269,18 @@ function projectVector(toProject, referenceVector) {
 }
 
 function gramSchmidt(toChange, referenceVector) {
-	return toChange - projectVector(toChange, referenceVector);
+	return vectorSubtraction(toChange, projectVector(toChange, referenceVector));
 }
 
 function vectorProduct(vectorA, vectorB) {
-	if (vectorA.length === vectorB.length === 3) {
+	if ((vectorA.length === 3) && (vectorB.length === 3)) {
 		var vectorProduct = [];
 
 		vectorProduct.push(vectorA[1]*vectorB[2] - vectorA[2]*vectorB[1]);
 		vectorProduct.push(vectorA[2]*vectorB[0] - vectorA[0]*vectorB[2]);
 		vectorProduct.push(vectorA[0]*vectorB[1] - vectorA[1]*vectorB[0]);
 
-		return product;
+		return vectorProduct;
 	} else return NaN;
 }
 // FIM DE FUNÇÕES PARA VETORES
