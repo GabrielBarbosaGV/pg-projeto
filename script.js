@@ -5,6 +5,9 @@
 
 
 // FUNÇÕES PARA LEITURA DE ARQUIVOS
+
+//Verifica se as extensões .byu, .cfg e .txt foram escolhidas simultaneamente,
+// sendo o caso, assume que todos os arquivos necessários foram escolhidos.
 function hasNecessaryFiles() {
 	let hasObj = false, hasCam = false, hasIll = false,
 	inputs = document.getElementById('file-selection').getElementsByTagName('input');
@@ -31,6 +34,8 @@ function hasNecessaryFiles() {
 	return hasObj && hasCam && hasIll;
 }
 
+//Chamado quando um arquivo é selecionado através dos botões no canto inferior esquerdo da página principal,
+// salva o conteúdo do arquivo em uma variável global apropriada.
 function readFile(evt) {
 	var files = evt.target.files;
 	var reader = new FileReader();
@@ -58,6 +63,7 @@ function readFile(evt) {
 	reader.readAsText(files[0]);
 }
 
+//Converte a string guardada na variável global objectInfo em um objeto.
 function interpretObjectInfo() {
 	var objectLines = objectInfo.split(/\r\n/).filter(i => i);
 
@@ -73,9 +79,11 @@ function interpretObjectInfo() {
 
 		for (let coord in point) {
 		       	point[coord] = parseFloat(point[coord]);
+			//Inicializa o vetor normal de um ponto para zero.
 			normal.push(0);
 		}
 
+		//Cada ponto é um objeto contendo um array com suas coordenadas e um array representando seu vetor normal, inicialmente zero.
 		points.push({point: point, normal: normal});
 	}
 
@@ -86,19 +94,24 @@ function interpretObjectInfo() {
 
 		for (let i in triangle) triangle[i] = parseInt(triangle[i]) - 1;
 
+		//Calcula arestas do triângulo a partir de seus pontos.
 		let edgeA = pointSubtraction(points[triangle[0]], points[triangle[1]]),
 			edgeB = pointSubtraction(points[triangle[1]], points[triangle[2]]);
 
 
+		//Realiza produto vetorial entre os vetores aresta e normaliza o resultado.
 		var normal = normalizeVector(vectorProduct(edgeA, edgeB));
 
 
+		//Soma a normal deste triângulo a cada ponto pertencente a ele.
 		for (let i in triangle) points[triangle[i]].normal = vectorSum(points[triangle[i]].normal, normal);
 
 
+		//Cada triângulo é um objeto contendo um array com a numeração de seus pontos constituíntes e um array representando seu vetor normal.
 		triangles.push({triangle: triangle, normal: normal});
 	}
 
+	//Normaliza vetores de cada ponto.
 	for (let pointN in points) points[pointN].normal = normalizeVector(points[pointN].normal);
 
 	return {
@@ -185,23 +198,33 @@ function interpretIlluminationInfo() {
 	}
 }
 
+//Atribui dados extraídos de strings a objetos guardados em variáveis globais.
 function interpretData(evt) {
 	if (hasNecessaryFiles()) {
 		camera = interpretCameraInfo();
 		object = interpretObjectInfo();
 		illumination = interpretIlluminationInfo();
 
+		//Ortogonaliza em relação a N e então normaliza o vetor V 
 		camera.v = normalizeVector(gramSchmidt(camera.v, camera.n));
+
+		//Calcula o terceiro vetor, U (de acordo com o arquivo Entrega 1, não precisa ser normalizado)
 		camera.u = vectorProduct(camera.n, camera.v);
 
+		//Subtrai C dos vértices para convertê-los a coordenadas de vista (de acordo com o descrito no arquivo de pipeline do projeto),
+		// o segundo argumento é envolvido em um objeto com propriedade point pois a função pointSubtraction espera esse tipo de objeto.
 		for (let pointN in object.points) object.points[pointN].point = pointSubtraction(object.points[pointN], {point: camera.c});
 
+		//Subtrai C da posição da iluminação para convertê-la a coordenadas de vista, os argumentos são envolvidos em objetos com propriedades point
+		// pois a função pointSubtraction espera esse tipo de objeto.
 		illumination.pl = pointSubtraction({point: illumination.pl}, {point: camera.c});
 	} else alert('Please input valid files.');
 }
 // FIM DE FUNÇÕES PARA LEITURA DE ARQUIVOS
 
 // FUNÇÕES PARA PONTOS
+
+//Subtrai ponto ou vetor de um ponto
 function pointSubtraction(pointA, toSubtract) {
 	if (pointA.point.length === toSubtract.point.length) {
 		var resultVector = [];
@@ -290,13 +313,17 @@ function vectorProduct(vectorA, vectorB) {
 var  object, camera, illumination,
 	objectInfo, cameraInfo, illuminationInfo;
 
+//window.onload para aguardar que os elementos sejam apropriadamente carregados.
 window.onload = () => {
+	//Seleciona as tags input dentro do div com id 'file-selection'
 	let inputs = document.getElementById('file-selection').getElementsByTagName('input');
 
 	for (let inputN = 0;inputN < inputs.length;inputN++) {
+		//Liga aos inputs dentro da div com id 'file-selection' a função readFile, através do evento de escolha de um arquivo.
 		document.getElementById(inputs[inputN].id).addEventListener('change', readFile, false);
 	}
 
 
+	//Liga ao botão 'Read files' a função interpretData, que deve rodar quando o botão for clicado
 	document.getElementById('read').addEventListener('click', interpretData, false);
 }
