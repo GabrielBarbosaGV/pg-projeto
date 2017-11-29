@@ -15,13 +15,13 @@ function hasNecessaryFiles() {
 		
 		switch (extension) {
 			case 'byu':
-				hasObj = true;
+				if (objectInfo != undefined) hasObj = true;
 				break;
 			case 'cfg':
-				hasCam = true;
+				if (cameraInfo != undefined) hasCam = true;
 				break;
 			case 'txt':
-				hasIll = true;
+				if (illuminationInfo != undefined) hasIll = true;
 				break;
 			default:
 				return false;
