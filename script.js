@@ -65,7 +65,7 @@ function readFile(evt) {
 
 //Converte a string guardada na variável global objectInfo em um objeto.
 function interpretObjectInfo() {
-	var objectLines = objectInfo.split(/\r\n/).filter(i => i);
+	var objectLines = objectInfo.split('\r\n').filter(i => i);
 
 	var info = objectLines[0].split(' ');
 
@@ -121,7 +121,7 @@ function interpretObjectInfo() {
 }
 
 function interpretCameraInfo() {
-	var cameraLines = cameraInfo.split(/\r\n/).filter(i => i);
+	var cameraLines = cameraInfo.split('\r\n').filter(i => i);
 
 	var c = cameraLines[0].split(' ').filter(i => i);
 
@@ -154,7 +154,7 @@ function interpretCameraInfo() {
 }
 
 function interpretIlluminationInfo() {
-	var illuminationLines = illuminationInfo.split(/\r\n/).filter(i => i);
+	var illuminationLines = illuminationInfo.split('\r\n').filter(i => i);
 
 	var pl = illuminationLines[0].split(' ').filter(i => i);
 
