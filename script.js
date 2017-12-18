@@ -212,6 +212,7 @@ function interpretData(evt) {
 		object = interpretObjectInfo();
 		illumination = interpretIlluminationInfo();
 
+
 		//Ortogonaliza em relação a N e então normaliza o vetor V 
 		camera.v = normalizeVector(gramSchmidt(camera.v, camera.n));
 
@@ -225,6 +226,8 @@ function interpretData(evt) {
 		//Subtrai C da posição da iluminação para convertê-la a coordenadas de vista, os argumentos são envolvidos em objetos com propriedades point
 		// pois a função pointSubtraction espera esse tipo de objeto.
 		illumination.pl = pointSubtraction({point: illumination.pl}, {point: camera.c});
+
+		getNormals();
 	} else alert('Please input valid files.');
 }
 // FIM DE FUNÇÕES PARA LEITURA DE ARQUIVOS
