@@ -94,25 +94,9 @@ function interpretObjectInfo() {
 
 		for (let i in triangle) triangle[i] = parseInt(triangle[i]) - 1;
 
-		//Calcula arestas do triângulo a partir de seus pontos.
-		let edgeA = pointSubtraction(points[triangle[0]], points[triangle[1]]),
-			edgeB = pointSubtraction(points[triangle[1]], points[triangle[2]]);
-
-
-		//Realiza produto vetorial entre os vetores aresta e normaliza o resultado.
-		var normal = normalizeVector(vectorProduct(edgeA, edgeB));
-
-
-		//Soma a normal deste triângulo a cada ponto pertencente a ele.
-		for (let i in triangle) points[triangle[i]].normal = vectorSum(points[triangle[i]].normal, normal);
-
-
 		//Cada triângulo é um objeto contendo um array com a numeração de seus pontos constituíntes e um array representando seu vetor normal.
-		triangles.push({triangle: triangle, normal: normal});
+		triangles.push({triangle: triangle, normal: 0});
 	}
-
-	//Normaliza vetores de cada ponto.
-	for (let pointN in points) points[pointN].normal = normalizeVector(points[pointN].normal);
 
 	return {
 		points: points,
@@ -196,6 +180,29 @@ function interpretIlluminationInfo() {
 		il: il,
 		n: n
 	}
+}
+
+function getNormals() {
+	for (let i in object.triangles) {
+		//Calcula arestas do triângulo a partir de seus pontos.
+		let edgeA = pointSubtraction(object.points[object.triangles[i].triangle[0]],
+				object.points[object.triangles[i].triangle[1]]),
+			edgeB = pointSubtraction(object.points[object.triangles[i].triangle[1]],
+					object.points[object.triangles[i].triangle[2]]);
+
+
+		//Realiza produto vetorial entre os vetores aresta e normaliza o resultado.
+		var normal = normalizeVector(vectorProduct(edgeA, edgeB));
+
+		object.triangles[i].normal = normal;
+
+
+		//Soma a normal deste triângulo a cada ponto pertencente a ele.
+		for (let j in object.triangles[i].triangle) object.points[object.triangles[i].triangle[j]].normal =
+			vectorSum(object.points[object.triangles[i].triangle[j]].normal, normal);
+	}
+
+	for (let pointN in points) object.points[pointN].normal = normalizeVector(object.points[pointN].normal);
 }
 
 //Atribui dados extraídos de strings a objetos guardados em variáveis globais.
