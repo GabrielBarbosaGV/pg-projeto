@@ -185,10 +185,10 @@ function interpretIlluminationInfo() {
 function getNormals() {
 	for (let i in object.triangles) {
 		//Calcula arestas do triângulo a partir de seus pontos.
-		let edgeA = pointSubtraction(object.points[object.triangles[i].triangle[0]],
-				object.points[object.triangles[i].triangle[1]]),
-			edgeB = pointSubtraction(object.points[object.triangles[i].triangle[1]],
-					object.points[object.triangles[i].triangle[2]]);
+		let edgeA = pointSubtraction(object.points[object.triangles[i].triangle[0]].point,
+				object.points[object.triangles[i].triangle[1]].point),
+			edgeB = pointSubtraction(object.points[object.triangles[i].triangle[1]].point,
+					object.points[object.triangles[i].triangle[2]].point);
 
 
 		//Realiza produto vetorial entre os vetores aresta e normaliza o resultado.
@@ -219,13 +219,13 @@ function interpretData(evt) {
 		//Calcula o terceiro vetor, U (de acordo com o arquivo Entrega 1, não precisa ser normalizado)
 		camera.u = vectorProduct(camera.n, camera.v);
 
-		//Subtrai C dos vértices para convertê-los a coordenadas de vista (de acordo com o descrito no arquivo de pipeline do projeto),
-		// o segundo argumento é envolvido em um objeto com propriedade point pois a função pointSubtraction espera esse tipo de objeto.
-		for (let pointN in object.points) object.points[pointN].point = pointSubtraction(object.points[pointN], {point: camera.c});
+		//Subtrai C dos vértices para convertê-los a coordenadas de vista (de acordo com o descrito no arquivo de pipeline do projeto)
+		for (let pointN in object.points) {
+		       object.points[pointN].point = pointSubtraction(object.points[pointN].point, camera.c);
+		}
 
-		//Subtrai C da posição da iluminação para convertê-la a coordenadas de vista, os argumentos são envolvidos em objetos com propriedades point
-		// pois a função pointSubtraction espera esse tipo de objeto.
-		illumination.pl = pointSubtraction({point: illumination.pl}, {point: camera.c});
+		//Subtrai C da posição da iluminação para convertê-la a coordenadas de vista
+		illumination.pl = pointSubtraction(illumination.pl, camera.c);
 
 		getNormals();
 	} else alert('Please input valid files.');
@@ -236,12 +236,7 @@ function interpretData(evt) {
 
 //Subtrai ponto ou vetor de um ponto
 function pointSubtraction(pointA, toSubtract) {
-	if (pointA.point.length === toSubtract.point.length) {
-		var resultVector = [];
-		for (let coordN in pointA.point) resultVector.push(pointA.point[coordN] - toSubtract.point[coordN]);
-
-		return resultVector;
-	} else return NaN;
+	return vectorSubtraction(pointA, toSubtract);
 }
 // FIM DE FUNÇÕES PARA PONTOS
 
@@ -321,24 +316,35 @@ function vectorProduct(vectorA, vectorB) {
 // FUNÇÕES PARA MATRIZES
 function makeMatrix(lineNumber, columnNumber) {
 	var lines = [], column = [];
-	for (let i = 0;i < columnNumber;i++) {
-		column.push(0);
-	}
 
-	for (let i = 0;i < lineNumber,i++) {
-		lines.push(column);
-	}
+	for (let i = 0;i < columnNumber;i++) column.push(0);
 
-	return {
-		lines: lines;
-	}
+	for (let i = 0;i < lineNumber,i++) lines.push(column);
+
+	return { lines: lines; }
+}
+
+function makeIdentityMatrix(lineNumber) {
+	var identity = makeMatrix(lineNumber, lineNumber);
+
+	for (let i = 0;i < lineNumber;i++) identity.lines[i][i] = 1;
+
+	return identity;
+}
+
+function matrixMultiplication(matrixA, matrixB) {
+	//Número de colunas da primeira matriz deve ser igual ao número de colunas da segunda
+	if (matrixA.lines[0].length === matrixB.lines.length) {
+		
+	} else return NaN;
 }
 // FIM DE FUNÇÕES PARA MATRIZES
 
 
 //EXECUÇÃO:
 var  object, camera, illumination,
-	objectInfo, cameraInfo, illuminationInfo;
+	objectInfo, cameraInfo, illuminationInfo,
+	points2D;
 
 //window.onload para aguardar que os elementos sejam apropriadamente carregados.
 window.onload = () => {
