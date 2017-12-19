@@ -205,15 +205,32 @@ function getNormals() {
 	for (let pointN in object.points) object.points[pointN].normal = normalizeVector(object.points[pointN].normal);
 }
 
+//Retorna lista de pontos 2D resultantes da projeção a partir de pontos 3D
+function getScreenCoordinates() {
+	var newPoints = [], d = camera.d, hx = camera.hx, hy = camera.hy;
+	for (let i in object.points) {
+		let point = object.points[i].point, newPoint;
+
+		newPoint = [((d/hx)*(point[0]/point[2])), ((d/hy)*(point[1]/point[2]))];
+
+		newPoint[0] = Math.round((newPoint[0] + 1)*canvas.width / 2);
+		newPoint[1] = Math.round((1 - newPoint[1])*canvas.height / 2);
+
+		newPoints.push(newPoint);
+	}
+
+	return newPoints;
+}
+
 //Atribui dados extraídos de strings a objetos guardados em variáveis globais.
 function interpretData(evt) {
-	if (hasFiles || hasNecessaryFiles()) {
+	if (hasNecessaryFiles()) {
 		camera = interpretCameraInfo();
 		object = interpretObjectInfo();
 		illumination = interpretIlluminationInfo();
 
 
-		//Ortogonaliza em relação a N e então normaliza o vetor V 
+		//Ortogonaliza em relação a N e então normaliza o vetor V
 		camera.v = normalizeVector(gramSchmidt(camera.v, camera.n));
 
 		//Calcula o terceiro vetor, U (de acordo com o arquivo Entrega 1, não precisa ser normalizado)
@@ -228,6 +245,8 @@ function interpretData(evt) {
 		illumination.pl = pointSubtraction(illumination.pl, camera.c);
 
 		getNormals();
+
+		points2D = getScreenCoordinates();
 	} else alert('Please input valid files.');
 }
 // FIM DE FUNÇÕES PARA LEITURA DE ARQUIVOS
@@ -319,7 +338,7 @@ function makeMatrix(lineNumber, columnNumber) {
 
 	for (let i = 0;i < columnNumber;i++) column.push(0);
 
-	for (let i = 0;i < lineNumber,i++) lines.push(column);
+	for (let i = 0;i < lineNumber;i++) lines.push(column);
 
 	return lines;
 }
@@ -381,7 +400,7 @@ function matrixByVectorMultiplication(matrix, vector) {
 //EXECUÇÃO:
 var  object, camera, illumination,
 	objectInfo, cameraInfo, illuminationInfo,
-	points2D, hasFiles;
+	points2D, canvas;
 
 //window.onload para aguardar que os elementos sejam apropriadamente carregados.
 window.onload = () => {
@@ -397,5 +416,8 @@ window.onload = () => {
 	//Liga ao botão 'Read files' a função interpretData, que deve rodar quando o botão for clicado
 	document.getElementById('read').addEventListener('click', interpretData, false);
 
-	hasFiles = hasNecessaryFiles();
+	canvas = document.getElementById('drawing');
+
+	canvas.height = parseFloat(window.getComputedStyle(canvas).height);
+	canvas.width = parseFloat(window.getComputedStyle(canvas).width);
 }
