@@ -333,9 +333,25 @@ function makeIdentityMatrix(lineNumber) {
 }
 
 function matrixMultiplication(matrixA, matrixB) {
-	//Número de colunas da primeira matriz deve ser igual ao número de colunas da segunda
+	//Número de colunas da primeira matriz deve ser igual ao número de linhas da segunda
 	if (matrixA.lines[0].length === matrixB.lines.length) {
-		
+		var returnMatrix = makeMatrix(matrixA.lines.length, matrixB.lines[0].length);
+
+		for (let i in returnMatrix.lines) {
+			for (let j in returnMatrix.lines[0]) {
+				currentValue = 0;
+
+				for (let k in matrixA.lines[i]) {
+					for (let l in matrixB.lines) {
+						currentValue += matrixA.lines[i][k]*matrixB.lines[l][j];
+					}
+				}
+
+				returnMatrix.lines[i][j] = currentValue;
+			}
+		}
+
+		return returnMatrix;
 	} else return NaN;
 }
 // FIM DE FUNÇÕES PARA MATRIZES
