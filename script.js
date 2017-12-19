@@ -207,7 +207,7 @@ function getNormals() {
 
 //Atribui dados extraídos de strings a objetos guardados em variáveis globais.
 function interpretData(evt) {
-	if (hasNecessaryFiles()) {
+	if (hasFiles || hasNecessaryFiles()) {
 		camera = interpretCameraInfo();
 		object = interpretObjectInfo();
 		illumination = interpretIlluminationInfo();
@@ -354,13 +354,31 @@ function matrixMultiplication(matrixA, matrixB) {
 		return returnMatrix;
 	} else return NaN;
 }
+
+function matrixByVectorMultiplication(matrix, vector) {
+	var columnVector = [];
+
+	//Coloca o vetor no formato de matriz coluna necessário para a multiplicação
+	for (let i in vector) columnVector.push([vector[i]]);
+
+	var columnMatrix = matrixMultiplication(matrix, {lines: columnVector});
+
+	if (isNaN(columnMatrix)) return NaN;
+	else {
+		var returnVector = [];
+
+		for (let i in columnMatrix.lines) returnVector.push(columnMatrix[i][0]);
+
+		return returnVector;
+	}
+}
 // FIM DE FUNÇÕES PARA MATRIZES
 
 
 //EXECUÇÃO:
 var  object, camera, illumination,
 	objectInfo, cameraInfo, illuminationInfo,
-	points2D;
+	points2D, hasFiles;
 
 //window.onload para aguardar que os elementos sejam apropriadamente carregados.
 window.onload = () => {
@@ -375,4 +393,6 @@ window.onload = () => {
 
 	//Liga ao botão 'Read files' a função interpretData, que deve rodar quando o botão for clicado
 	document.getElementById('read').addEventListener('click', interpretData, false);
+
+	hasFiles = hasNecessaryFiles();
 }
