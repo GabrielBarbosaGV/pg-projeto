@@ -394,6 +394,76 @@ function matrixByVectorMultiplication(matrix, vector) {
 		return returnVector;
 	}
 }
+
+function matrixChangeOfBasis(u, v, n){
+   	var initialMatrix = [ [ u[0], v[0], n[0] ],
+   						  [ u[1], v[1], n[1] ],
+   						  [ u[2], v[2], n[2] ]];
+
+    //Criação da matriz identidade e cópia da original
+    var i=0, ii=0, j=0, dim=initialMatrix.length, e=0, t=0;
+    var matrixBasisChange = [], mCopy = [];
+    for(i=0; i<dim; i+=1){
+        // Cria linha
+        matrixBasisChange[matrixBasisChange.length]=[];
+        mCopy[mCopy.length]=[];
+        for(j=0; j<dim; j+=1){
+            
+            // Por 1 se estiver na diagonal na original e na cópia
+            if(i==j){ matrixBasisChange[i][j] = 1; }
+            else{ matrixBasisChange[i][j] = 0; }
+            
+            mCopy[i][j] = initialMatrix[i][j];
+        }
+    }
+    
+    // Operações elementares linha a linha
+    for(i=0; i<dim; i+=1){
+        // Opera com o elemento 'e' da diagonal
+        e = mCopy[i][i];
+        
+        // se tivermos 0 na diagonal, trocamos com uma linha mais abaixo
+        if(e==0){
+            //procura por cada linha abaixo da linha i
+            for(ii=i+1; ii<dim; ii+=1){
+                if(mCopy[ii][i] != 0){
+                    for(j=0; j<dim; j++){
+                        e = mCopy[i][j];       
+                        mCopy[i][j] = mCopy[ii][j];
+                        mCopy[ii][j] = e;    
+                        e = matrixBasisChange[i][j];     
+                        matrixBasisChange[i][j] = matrixBasisChange[ii][j];
+                        matrixBasisChange[ii][j] = e;     
+                    }
+                    break;
+                }
+            }
+            e = mCopy[i][i];
+
+            if(e==0){return}
+        }
+        
+        // Dividimos linha toda por e, assim teremos 1 na diagonal
+        for(j=0; j<dim; j++){
+            mCopy[i][j] = mCopy[i][j]/e; //apply to original matrix
+            matrixBasisChange[i][j] = matrixBasisChange[i][j]/e; //apply to identity
+        }
+        
+        // Subtrai essa linha de todas as outras para obter 0 fora da diagonal
+        for(ii=0; ii<dim; ii++){
+            if(ii==i){continue;}
+            
+            e = mCopy[ii][i];
+           	
+            for(j=0; j<dim; j++){
+                mCopy[ii][j] -= e*mCopy[i][j]; 
+                matrixBasisChange[ii][j] -= e*matrixBasisChange[i][j]; 
+            }
+        }
+    }
+    
+    return matrixBasisChange;
+}
 // FIM DE FUNÇÕES PARA MATRIZES
 
 
