@@ -321,36 +321,36 @@ function makeMatrix(lineNumber, columnNumber) {
 
 	for (let i = 0;i < lineNumber,i++) lines.push(column);
 
-	return { lines: lines; }
+	return lines;
 }
 
 function makeIdentityMatrix(lineNumber) {
 	var identity = makeMatrix(lineNumber, lineNumber);
 
-	for (let i = 0;i < lineNumber;i++) identity.lines[i][i] = 1;
+	for (let i = 0;i < lineNumber;i++) identity[i][i] = 1;
 
 	return identity;
 }
 
 function matrixMultiplication(matrixA, matrixB) {
 	//Número de colunas da primeira matriz deve ser igual ao número de linhas da segunda
-	if (matrixA.lines[0].length === matrixB.lines.length) {
+	if (matrixA[0].length === matrixB.length) {
 		//Matriz resultante de uma multiplicação de matrizes tem sempre número de linhas da primeira e número de colunas da segunda
-		var returnMatrix = makeMatrix(matrixA.lines.length, matrixB.lines[0].length);
+		var returnMatrix = makeMatrix(matrixA.length, matrixB[0].length);
 
 		//Para cada posição i, j da matriz resultado, multiplica a linha i da primeira matriz pela coluna j da segunda matriz
-		for (let i in returnMatrix.lines) {
-			for (let j in returnMatrix.lines[0]) {
+		for (let i in returnMatrix) {
+			for (let j in returnMatrix[0]) {
 				currentValue = 0;
 
 				//Multiplica linha i da primeira matriz por coluna j da segunda matriz
-				for (let k in matrixA.lines[i]) {
-					for (let l in matrixB.lines) {
-						currentValue += matrixA.lines[i][k]*matrixB.lines[l][j];
+				for (let k in matrixA[i]) {
+					for (let l in matrixB) {
+						currentValue += matrixA[i][k]*matrixB[l][j];
 					}
 				}
 
-				returnMatrix.lines[i][j] = currentValue;
+				returnMatrix[i][j] = currentValue;
 			}
 		}
 
@@ -364,13 +364,13 @@ function matrixByVectorMultiplication(matrix, vector) {
 	//Coloca o vetor no formato de matriz coluna necessário para a multiplicação
 	for (let i in vector) columnVector.push([vector[i]]);
 
-	var columnMatrix = matrixMultiplication(matrix, {lines: columnVector});
+	var columnMatrix = matrixMultiplication(matrix, columnVector);
 
 	if (isNaN(columnMatrix)) return NaN;
 	else {
 		var returnVector = [];
 
-		for (let i in columnMatrix.lines) returnVector.push(columnMatrix[i][0]);
+		for (let i in columnMatrix) returnVector.push(columnMatrix[i][0]);
 
 		return returnVector;
 	}
