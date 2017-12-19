@@ -202,7 +202,7 @@ function getNormals() {
 			vectorSum(object.points[object.triangles[i].triangle[j]].normal, normal);
 	}
 
-	for (let pointN in points) object.points[pointN].normal = normalizeVector(object.points[pointN].normal);
+	for (let pointN in object.points) object.points[pointN].normal = normalizeVector(object.points[pointN].normal);
 }
 
 //Atribui dados extraídos de strings a objetos guardados em variáveis globais.
@@ -317,6 +317,23 @@ function vectorProduct(vectorA, vectorB) {
 	} else return NaN;
 }
 // FIM DE FUNÇÕES PARA VETORES
+
+// FUNÇÕES PARA MATRIZES
+function makeMatrix(lineNumber, columnNumber) {
+	var lines = [], column = [];
+	for (let i = 0;i < columnNumber;i++) {
+		column.push(0);
+	}
+
+	for (let i = 0;i < lineNumber,i++) {
+		lines.push(column);
+	}
+
+	return {
+		lines: lines;
+	}
+}
+// FIM DE FUNÇÕES PARA MATRIZES
 
 
 //EXECUÇÃO:
