@@ -73,7 +73,6 @@ function interpretObjectInfo() {
 
 
 	var points = [];
-	var points_vista = [];
 
 	for (let line = 1;line < info[0] + 1;line++) {
 		var point = objectLines[line + 1].split(' ').filter(i => i), normal = [];
@@ -101,7 +100,6 @@ function interpretObjectInfo() {
 
 	return {
 		points: points,
-		points_vista: points_vista,
 		triangles: triangles
 	}
 }
@@ -244,11 +242,11 @@ function interpretData(evt) {
 
 		//Subtrai C dos vértices para convertê-los a coordenadas de vista (de acordo com o descrito no arquivo de pipeline do projeto)
 		for (let pointN in object.points) {
-		       object.points_vista[pointN] = matrixByVectorMultiplication(matrixBasisChange, pointSubtraction(object.points[pointN].point, camera.c));
+		       object.points[pointN].point = matrixByVectorMultiplication(matrixBasisChange, pointSubtraction(object.points[pointN].point, camera.c));
 		}
 
 		//Subtrai C da posição da iluminação para convertê-la a coordenadas de vista
-		illumination_vista = matrixByVectorMultiplication(matrixBasisChange, pointSubtraction(illumination.pl, camera.c));
+		illumination.pl = matrixByVectorMultiplication(matrixBasisChange, pointSubtraction(illumination.pl, camera.c));
 
 		getNormals();
 
@@ -474,7 +472,7 @@ function matrixChangeOfBasis(u, v, n){
 
 
 //EXECUÇÃO:
-var  object, camera, illumination, illumination_vista,
+var  object, camera, illumination,
 	objectInfo, cameraInfo, illuminationInfo,
 	points2D, canvas;
 
