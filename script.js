@@ -73,6 +73,7 @@ function interpretObjectInfo() {
 
 
 	var points = [];
+	var points_vista = [];
 
 	for (let line = 1;line < info[0] + 1;line++) {
 		var point = objectLines[line + 1].split(' ').filter(i => i), normal = [];
@@ -100,6 +101,7 @@ function interpretObjectInfo() {
 
 	return {
 		points: points,
+		points_vista: points_vista,
 		triangles: triangles
 	}
 }
@@ -228,6 +230,7 @@ function interpretData(evt) {
 		camera = interpretCameraInfo();
 		object = interpretObjectInfo();
 		illumination = interpretIlluminationInfo();
+		var matrixBasisChange;
 
 
 		//Ortogonaliza em relação a N e então normaliza o vetor V
@@ -236,13 +239,16 @@ function interpretData(evt) {
 		//Calcula o terceiro vetor, U (de acordo com o arquivo Entrega 1, não precisa ser normalizado)
 		camera.u = vectorProduct(camera.n, camera.v);
 
+		//Calcula matriz de mudança de base
+		matrixBasisChange = matrixChangeOfBasis();
+
 		//Subtrai C dos vértices para convertê-los a coordenadas de vista (de acordo com o descrito no arquivo de pipeline do projeto)
 		for (let pointN in object.points) {
-		       object.points[pointN].point = pointSubtraction(object.points[pointN].point, camera.c);
+		       object.points_vista[pointN] = matrixByVectorMultiplication(matrixBasisChange, pointSubtraction(object.points[pointN].point, camera.c));
 		}
 
 		//Subtrai C da posição da iluminação para convertê-la a coordenadas de vista
-		illumination.pl = pointSubtraction(illumination.pl, camera.c);
+		illumination_vista = matrixByVectorMultiplication(matrixBasisChange, pointSubtraction(illumination.pl, camera.c));
 
 		getNormals();
 
@@ -468,7 +474,7 @@ function matrixChangeOfBasis(u, v, n){
 
 
 //EXECUÇÃO:
-var  object, camera, illumination,
+var  object, camera, illumination, illumination_vista,
 	objectInfo, cameraInfo, illuminationInfo,
 	points2D, canvas;
 
