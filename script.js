@@ -240,7 +240,8 @@ function interpretData(evt) {
 		//Calcula matriz de mudança de base
 		matrixBasisChange = matrixChangeOfBasis(camera.u, camera.v, camera.n);
 
-		//Subtrai C dos vértices para convertê-los a coordenadas de vista (de acordo com o descrito no arquivo de pipeline do projeto)
+		//Multiplica matriz de mudança de base por coordenadas dos vértices subtraídos de C para convertê-los a coordenadas de vista (de acordo com o
+		// descrito no arquivo de pipline do projeto)
 		for (let pointN in object.points) {
 		       object.points[pointN].point = matrixByVectorMultiplication(matrixBasisChange, pointSubtraction(object.points[pointN].point, camera.c));
 		}
