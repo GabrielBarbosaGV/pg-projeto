@@ -382,9 +382,7 @@ function matrixMultiplication(matrixA, matrixB) {
 
 				//Multiplica linha i da primeira matriz por coluna j da segunda matriz
 				for (let k in matrixA[i]) {
-					for (let l in matrixB) {
-						currentValue += matrixA[i][k]*matrixB[l][j];
-					}
+					currentValue += matrixA[i][k]*matrixB[k][j];
 				}
 
 				returnMatrix[i][j] = currentValue;
@@ -499,7 +497,7 @@ function sortPointsByY(array) {
 	});
 }
 
-fillBottomFlatTriangle(v1, v2, v3) {
+function fillBottomFlatTriangle(v1, v2, v3) {
   var invslope1 = (v2[0] - v1[0]) / (v2[1] - v1[1]); 
   var invslope2 = (v3[0] - v1[0]) / (v3[1] - v1[1]);
 
@@ -514,7 +512,7 @@ fillBottomFlatTriangle(v1, v2, v3) {
 }
 
 	
-fillTopFlatTriangle(v1, v2, v3) {
+function fillTopFlatTriangle(v1, v2, v3) {
   var invslope1 = (v3[0] - v1[0]) / (v3[1] - v1[1]);
   var invslope2 = (v3[0] - v2[0]) / (v3[1] - v2[1]);
 
@@ -561,6 +559,15 @@ function drawLine(originX, originY, destinyX, destinyY ) {
     context.stroke();
 }
 
+function drawHorizontalLine(origin, destiny, yPos, v1, v2, v3) {
+	for (let i = origin;i <= destiny;i++) {
+		
+	}
+}
+
+function barycentricCoordinates(v1, v2, v3) {
+	for (let i in v1)
+}
 // FIM DE FUNÇÕES PARA DESENHO
 
 
