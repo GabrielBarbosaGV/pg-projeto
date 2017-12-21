@@ -74,7 +74,7 @@ function interpretObjectInfo() {
 
 	var points = [];
 
-	for (let line = 1;line < info[0] + 1;line++) {
+	for (let line = 0;line < info[0];line++) {
 		var point = objectLines[line + 1].split(' ').filter(i => i), normal = [];
 
 		for (let coord in point) {
@@ -238,7 +238,7 @@ function interpretData(evt) {
 		camera.u = vectorProduct(camera.n, camera.v);
 
 		//Calcula matriz de mudança de base
-		matrixBasisChange = matrixChangeOfBasis();
+		matrixBasisChange = matrixChangeOfBasis(camera.u, camera.v, camera.n);
 
 		//Subtrai C dos vértices para convertê-los a coordenadas de vista (de acordo com o descrito no arquivo de pipeline do projeto)
 		for (let pointN in object.points) {
