@@ -2,6 +2,17 @@
 
 // FIM DE CONFIGURAÇÕES PRÉ-EXECUÇÃO
 
+// FUNÇÕES PRÉ-EXECUÇÃO
+function initializeZBuffer() {
+	var row = [], rows = [];
+
+	for (let i = 0;i < canvas.width;i++) row.push({distance: NaN, color: 'rgb(128, 128, 128)'});
+
+	for (let i = 0;i < canvas.height;i++) rows.push(row);
+
+	return rows;
+}
+// FIM DE FUNÇÕES PRÉ-EXECUÇÃO
 
 
 // FUNÇÕES PARA LEITURA DE ARQUIVOS
@@ -252,6 +263,8 @@ function interpretData(evt) {
 		getNormals();
 
 		points2D = getScreenCoordinates();
+
+		zBuffer = initializeZBuffer();
 	} else alert('Please input valid files.');
 }
 // FIM DE FUNÇÕES PARA LEITURA DE ARQUIVOS
@@ -475,7 +488,7 @@ function matrixChangeOfBasis(u, v, n){
 //EXECUÇÃO:
 var  object, camera, illumination,
 	objectInfo, cameraInfo, illuminationInfo,
-	points2D, canvas;
+	points2D, canvas, zBuffer;
 
 //window.onload para aguardar que os elementos sejam apropriadamente carregados.
 window.onload = () => {
