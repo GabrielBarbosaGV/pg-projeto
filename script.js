@@ -243,11 +243,11 @@ function interpretData(evt) {
 		//Multiplica matriz de mudança de base por coordenadas dos vértices subtraídos de C para convertê-los a coordenadas de vista (de acordo com o
 		// descrito no arquivo de pipline do projeto)
 		for (let pointN in object.points) {
-		       object.points[pointN].point = matrixByVectorMultiplication(matrixBasisChange, pointSubtraction(object.points[pointN].point, camera.c));
+		       object.points[pointN].point = matrixMultiplication(matrixBasisChange, pointSubtraction(object.points[pointN].point, camera.c));
 		}
 
 		//Subtrai C da posição da iluminação para convertê-la a coordenadas de vista
-		illumination.pl = matrixByVectorMultiplication(matrixBasisChange, pointSubtraction(illumination.pl, camera.c));
+		illumination.pl = matrixMultiplication(matrixBasisChange, pointSubtraction(illumination.pl, camera.c));
 
 		getNormals();
 
@@ -357,47 +357,19 @@ function makeIdentityMatrix(lineNumber) {
 }
 
 function matrixMultiplication(matrixA, matrixB) {
-	//Número de colunas da primeira matriz deve ser igual ao número de linhas da segunda
-	if (matrixA[0].length === matrixB.length) {
-		//Matriz resultante de uma multiplicação de matrizes tem sempre número de linhas da primeira e número de colunas da segunda
-		var returnMatrix = makeMatrix(matrixA.length, matrixB[0].length);
-
-		//Para cada posição i, j da matriz resultado, multiplica a linha i da primeira matriz pela coluna j da segunda matriz
-		for (let i in returnMatrix) {
-			for (let j in returnMatrix[0]) {
-				currentValue = 0;
-
-				//Multiplica linha i da primeira matriz por coluna j da segunda matriz
-				for (let k in matrixA[i]) {
-					for (let l in matrixB) {
-						currentValue += matrixA[i][k]*matrixB[l][j];
-					}
-				}
-
-				returnMatrix[i][j] = currentValue;
-			}
-		}
-
-		return returnMatrix;
-	} else return NaN;
-}
-
-function matrixByVectorMultiplication(matrix, vector) {
-	var columnVector = [];
-
-	//Coloca o vetor no formato de matriz coluna necessário para a multiplicação
-	for (let i in vector) columnVector.push([vector[i]]);
-
-	var columnMatrix = matrixMultiplication(matrix, columnVector);
-
-	if (isNaN(columnMatrix)) return NaN;
-	else {
-		var returnVector = [];
-
-		for (let i in columnMatrix) returnVector.push(columnMatrix[i][0]);
-
-		return returnVector;
-	}
+	var aNumRows = matrixA.length, aNumCols = matrixA[0].length,
+      bNumRows = matrixB.length, bNumCols = matrixB[0].length,
+      m = new Array(aNumRows);  // inicializa o array de linhas
+  for (var r = 0; r < aNumRows; ++r) {
+    m[r] = new Array(bNumCols); // inicializa a linha atual
+    for (var c = 0; c < bNumCols; ++c) {
+      m[r][c] = 0;             // inicializa a célula atual
+      for (var i = 0; i < aNumCols; ++i) {
+        m[r][c] += matrixA[r][i] * matrixB[i][c];
+      }
+    }
+  }
+  return m;
 }
 
 function matrixChangeOfBasis(u, v, n){
@@ -486,7 +458,7 @@ function sortPointsByY(array) {
 	});
 }
 
-fillBottomFlatTriangle(v1, v2, v3) {
+function fillBottomFlatTriangle(v1, v2, v3) {
   var invslope1 = (v2[0] - v1[0]) / (v2[1] - v1[1]); 
   var invslope2 = (v3[0] - v1[0]) / (v3[1] - v1[1]);
 
@@ -501,7 +473,7 @@ fillBottomFlatTriangle(v1, v2, v3) {
 }
 
 	
-fillTopFlatTriangle(v1, v2, v3) {
+function fillTopFlatTriangle(v1, v2, v3) {
   var invslope1 = (v3[0] - v1[0]) / (v3[1] - v1[1]);
   var invslope2 = (v3[0] - v2[0]) / (v3[1] - v2[1]);
 
