@@ -220,7 +220,8 @@ function getNormals() {
 function getScreenCoordinates() {
 	var newPoints = [], d = camera.d, hx = camera.hx, hy = camera.hy;
 	for (let i in object.points) {
-		let point = object.points[i].point, newPoint;
+		let point = object.points[i].point; 
+		var newPoint;
 
 		newPoint = [((d/hx)*(point[0]/point[2])), ((d/hy)*(point[1]/point[2]))];
 
@@ -254,17 +255,22 @@ function interpretData(evt) {
 		//Multiplica matriz de mudança de base por coordenadas dos vértices subtraídos de C para convertê-los a coordenadas de vista (de acordo com o
 		// descrito no arquivo de pipline do projeto)
 		for (let pointN in object.points) {
-		       object.points[pointN].point = matrixByVectorMultiplication(matrixBasisChange, pointSubtraction(object.points[pointN].point, camera.c));
+			let cv = pointSubtraction(object.points[pointN].point, camera.c);
+			let column = matrixMultiplication(matrixBasisChange, [[cv[0]], [cv[1]], [cv[2]]]);
+			for (var i = 0; i < column.length; i++) {
+				object.points[pointN].point[i] = column[i][0];
+			}
+		    
 		}
 
 		//Subtrai C da posição da iluminação para convertê-la a coordenadas de vista
-		illumination.pl = matrixByVectorMultiplication(matrixBasisChange, pointSubtraction(illumination.pl, camera.c));
+		illumination.pl = matrixMultiplication(matrixBasisChange, pointSubtraction(illumination.pl, camera.c));
 
 		getNormals();
 
 		points2D = getScreenCoordinates();
-
 		zBuffer = initializeZBuffer();
+		drawObjectTriangles();
 	} else alert('Please input valid files.');
 }
 // FIM DE FUNÇÕES PARA LEITURA DE ARQUIVOS
@@ -370,45 +376,19 @@ function makeIdentityMatrix(lineNumber) {
 }
 
 function matrixMultiplication(matrixA, matrixB) {
-	//Número de colunas da primeira matriz deve ser igual ao número de linhas da segunda
-	if (matrixA[0].length === matrixB.length) {
-		//Matriz resultante de uma multiplicação de matrizes tem sempre número de linhas da primeira e número de colunas da segunda
-		var returnMatrix = makeMatrix(matrixA.length, matrixB[0].length);
-
-		//Para cada posição i, j da matriz resultado, multiplica a linha i da primeira matriz pela coluna j da segunda matriz
-		for (let i in returnMatrix) {
-			for (let j in returnMatrix[0]) {
-				currentValue = 0;
-
-				//Multiplica linha i da primeira matriz por coluna j da segunda matriz
-				for (let k in matrixA[i]) {
-					currentValue += matrixA[i][k]*matrixB[k][j];
-				}
-
-				returnMatrix[i][j] = currentValue;
-			}
-		}
-
-		return returnMatrix;
-	} else return NaN;
-}
-
-function matrixByVectorMultiplication(matrix, vector) {
-	var columnVector = [];
-
-	//Coloca o vetor no formato de matriz coluna necessário para a multiplicação
-	for (let i in vector) columnVector.push([vector[i]]);
-
-	var columnMatrix = matrixMultiplication(matrix, columnVector);
-
-	if (isNaN(columnMatrix)) return NaN;
-	else {
-		var returnVector = [];
-
-		for (let i in columnMatrix) returnVector.push(columnMatrix[i][0]);
-
-		return returnVector;
-	}
+	var aNumRows = matrixA.length, aNumCols = matrixA[0].length,
+      bNumRows = matrixB.length, bNumCols = matrixB[0].length,
+      m = new Array(aNumRows);  // inicializa o array de linhas
+  for (var r = 0; r < aNumRows; ++r) {
+    m[r] = new Array(bNumCols); // inicializa a linha atual
+    for (var c = 0; c < bNumCols; ++c) {
+      m[r][c] = 0;             // inicializa a célula atual
+      for (var i = 0; i < aNumCols; ++i) {
+        m[r][c] += matrixA[r][i] * matrixB[i][c];
+      }
+    }
+  }
+  return m;
 }
 
 function matrixChangeOfBasis(u, v, n){
@@ -528,9 +508,9 @@ function fillTopFlatTriangle(v1, v2, v3) {
 }
 
 function drawTriangle(triangle) {
-	var v1 = object.points[triangle.triangle[0]].point; //Ponto 1 do triângulo passado como parâmetro
-	var v2 = object.points[triangle.triangle[1]].point; //Ponto 2 do triângulo passado como parâmetro
-	var v3 = object.points[triangle.triangle[2]].point; //Ponto 3 do triângulo passado como parâmetro
+	var v1 = points2D[triangle.triangle[0]]; //Ponto 1 do triângulo passado como parâmetro
+	var v2 = points2D[triangle.triangle[1]]; //Ponto 2 do triângulo passado como parâmetro
+	var v3 = points2D[triangle.triangle[2]]; //Ponto 3 do triângulo passado como parâmetro
 
 	if (v2[1] == v3[1]) { //Compara y dos pontos v2 e v3
 		fillBottomFlatTriangle(v1, v2, v3);
@@ -553,6 +533,7 @@ function drawObjectTriangles() {
 }
 
 function drawLine(originX, originY, destinyX, destinyY ) {
+	context.strokeStyle = "#000000";
 	context.beginPath();
     context.moveTo(originX, originY);
     context.lineTo(destinyX, destinyY);
@@ -574,7 +555,7 @@ function barycentricCoordinates(v1, v2, v3) {
 //EXECUÇÃO:
 var  object, camera, illumination,
 	objectInfo, cameraInfo, illuminationInfo,
-	points2D, canvas, zBuffer;
+	points2D, canvas, context, zBuffer;
 
 //window.onload para aguardar que os elementos sejam apropriadamente carregados.
 window.onload = () => {
@@ -594,5 +575,5 @@ window.onload = () => {
 
 	canvas.height = parseFloat(window.getComputedStyle(canvas).height);
 	canvas.width = parseFloat(window.getComputedStyle(canvas).width);
-	var context = canvas.getContext('2d');
+	context = canvas.getContext('2d');
 }
