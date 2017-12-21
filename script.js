@@ -485,6 +485,85 @@ function matrixChangeOfBasis(u, v, n){
 // FIM DE FUNÇÕES PARA MATRIZES
 
 
+// FUNÇÕES PARA DESENHO
+
+// Onde o algoritmo de rasterização é aplicado
+function sortPointsByY(array) {
+	array.sort(function(a,b) {
+		var sort = object.points[a].point[1]-object.points[b].point[1];
+		if (sort == 0) {
+			return object.points[a].point[0]-object.points[b].point[0];
+		} else {
+			return sort;
+		}
+	});
+}
+
+fillBottomFlatTriangle(v1, v2, v3) {
+  var invslope1 = (v2[0] - v1[0]) / (v2[1] - v1[1]); 
+  var invslope2 = (v3[0] - v1[0]) / (v3[1] - v1[1]);
+
+  var curx1 = v1[0];
+  var curx2 = v1[0];
+
+  for (var scanlineY = v1[1]; scanlineY <= v2[1]; scanlineY++) {
+    drawLine(curx1, scanlineY, curx2, scanlineY);
+    curx1 += invslope1;
+    curx2 += invslope2;
+  }
+}
+
+	
+fillTopFlatTriangle(v1, v2, v3) {
+  var invslope1 = (v3[0] - v1[0]) / (v3[1] - v1[1]);
+  var invslope2 = (v3[0] - v2[0]) / (v3[1] - v2[1]);
+
+  var curx1 = v3[0];
+  var curx2 = v3[0];
+
+  for (var scanlineY = v3[1]; scanlineY > v1[1]; scanlineY--)
+  {
+    drawLine(curx1, scanlineY, curx2, scanlineY);
+    curx1 -= invslope1;
+    curx2 -= invslope2;
+  }
+}
+
+function drawTriangle(triangle) {
+	var v1 = object.points[triangle.triangle[0]].point; //Ponto 1 do triângulo passado como parâmetro
+	var v2 = object.points[triangle.triangle[1]].point; //Ponto 2 do triângulo passado como parâmetro
+	var v3 = object.points[triangle.triangle[2]].point; //Ponto 3 do triângulo passado como parâmetro
+
+	if (v2[1] == v3[1]) { //Compara y dos pontos v2 e v3
+		fillBottomFlatTriangle(v1, v2, v3);
+	} else if (v1[1] == v2[1]) { //Compara y dos pontos v1 e v2
+		fillTopFlatTriangle(v1, v2, v3);
+	} else {
+		var deltaY2perY3 = (v2[1] - v1[1]) / (v3[1] - v1[1]); 
+		var x4 = v1[0] + deltaY2perY3 * (v3[0] - v1[0]);
+		var v4 = [x4, v2[1], v2[2]];
+		fillBottomFlatTriangle(v1, v2, v4);
+	    fillTopFlatTriangle(v2, v4, v3);
+	}
+}
+
+function drawObjectTriangles() {
+	for (let i in object.triangles) {
+		sortPointsByY(object.triangles[i].triangle);
+		drawTriangle(object.triangles[i]);
+	}
+}
+
+function drawLine(originX, originY, destinyX, destinyY ) {
+	context.beginPath();
+    context.moveTo(originX, originY);
+    context.lineTo(destinyX, destinyY);
+    context.stroke();
+}
+
+// FIM DE FUNÇÕES PARA DESENHO
+
+
 //EXECUÇÃO:
 var  object, camera, illumination,
 	objectInfo, cameraInfo, illuminationInfo,
@@ -508,4 +587,5 @@ window.onload = () => {
 
 	canvas.height = parseFloat(window.getComputedStyle(canvas).height);
 	canvas.width = parseFloat(window.getComputedStyle(canvas).width);
+	var context = canvas.getContext('2d');
 }
