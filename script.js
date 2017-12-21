@@ -396,6 +396,52 @@ function matrixByVectorMultiplication(matrix, vector) {
 }
 // FIM DE FUNÇÕES PARA MATRIZES
 
+// FUNÇÕES PARA CURVAS DE BEZIER
+
+/*
+   *  FUNCAO DE DECASTELJAU:
+   *  - RECEBE UM ARRAY DE PONTOS DE CONTROLE DE UMA CURVA E UM VALOR DE t
+   *  - RETORNA O PONTO NA CURVA PARA O t DADO
+   */
+
+  function deCasteljau(controlPoints, t) {
+	var temp = [];
+	for (let i = 0; i < controlPoints.length; i++) {
+		temp.push(controlPoints[i]);
+	}
+
+	for (let i = 0; temp.length > 1; i++) {
+		var m = temp.shift();
+		var n = temp[0];
+
+		// Ainda sem a normal
+		temp.push({point: [(m.x * (1 - t) + n.x * t).toFixed(5), (m.y * (1 - t) + n.y * t).toFixed(5), (m.z * (1 - t) + n.z * t).toFixed(5)]});
+
+		if (i == temp.length - 2) {
+			temp.shift();
+			i = -1;
+		}
+	}
+	return temp[0];
+}
+
+/*
+   *  FUNCAO DE BEZIER:
+   *  - RECEBE UM ARRAY DE PONTOS DE CONTROLE E UM NUMERO DE AVALIACOES DE DECASTELJAU
+   *  - RETORNA UM ARRAY DE PONTOS DA CURVA PARA O NUMERO DE AVALIACOES DADO
+   */
+
+function generateBezierCurve(controlPoints, numDC) {
+	var res = [];
+
+	for (var i = 0; i <= numDC; i++) {
+		res.push(deCasteljau(controlPoints, (i / numDC)));
+	}
+
+	return res;
+}
+
+// FIM DE FUNÇÕES PARA CURVAS DE BEZIER
 
 //EXECUÇÃO:
 var  object, camera, illumination,
