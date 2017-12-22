@@ -258,6 +258,9 @@ function interpretData(evt) {
 		getNormals();
 
 		points2D = getScreenCoordinates();
+
+		zBuffer = initializeZBuffer();
+
 		drawObjectTriangles();
 	} else alert('Please input valid files.');
 }
@@ -268,6 +271,14 @@ function interpretData(evt) {
 //Subtrai ponto ou vetor de um ponto
 function pointSubtraction(pointA, toSubtract) {
 	return vectorSubtraction(pointA, toSubtract);
+}
+
+function pointSum(pointA, pointB) {
+	return vectorSum(pointA, pointB);
+}
+
+function pointByScalar(scalar, pointA) {
+	return vectorByScalar(scalar, pointA);
 }
 // FIM DE FUNÇÕES PARA PONTOS
 
@@ -341,6 +352,14 @@ function vectorProduct(vectorA, vectorB) {
 
 		return vectorProduct;
 	} else return NaN;
+}
+
+function vectorByScalar(scalar, vector) {
+	var returnVector = [];
+
+	for (let i in vector) returnVector.push(vector[i]*scalar);
+
+	return returnVector;
 }
 // FIM DE FUNÇÕES PARA VETORES
 
@@ -448,6 +467,7 @@ function matrixChangeOfBasis(u, v, n){
     
     return matrixBasisChange;
 }
+
 // FIM DE FUNÇÕES PARA MATRIZES
 
 
@@ -465,7 +485,7 @@ function sortPointsByY(array) {
 	});
 }
 
-function fillBottomFlatTriangle(v1, v2, v3) {
+function fillBottomFlatTriangle(v1, v2, v3, triangle) {
   var invslope1 = (v2[0] - v1[0]) / (v2[1] - v1[1]); 
   var invslope2 = (v3[0] - v1[0]) / (v3[1] - v1[1]);
 
@@ -480,7 +500,7 @@ function fillBottomFlatTriangle(v1, v2, v3) {
 }
 
 	
-function fillTopFlatTriangle(v1, v2, v3) {
+function fillTopFlatTriangle(v1, v2, v3, triangle) {
   var invslope1 = (v3[0] - v1[0]) / (v3[1] - v1[1]);
   var invslope2 = (v3[0] - v2[0]) / (v3[1] - v2[1]);
 
@@ -501,15 +521,15 @@ function drawTriangle(triangle) {
 	var v3 = points2D[triangle.triangle[2]]; //Ponto 3 do triângulo passado como parâmetro
 
 	if (v2[1] == v3[1]) { //Compara y dos pontos v2 e v3
-		fillBottomFlatTriangle(v1, v2, v3);
+		fillBottomFlatTriangle(v1, v2, v3, triangle);
 	} else if (v1[1] == v2[1]) { //Compara y dos pontos v1 e v2
-		fillTopFlatTriangle(v1, v2, v3);
+		fillTopFlatTriangle(v1, v2, v3, triangle);
 	} else {
 		var deltaY2perY3 = (v2[1] - v1[1]) / (v3[1] - v1[1]); 
 		var x4 = v1[0] + deltaY2perY3 * (v3[0] - v1[0]);
 		var v4 = [x4, v2[1], v2[2]];
-		fillBottomFlatTriangle(v1, v2, v4);
-	    fillTopFlatTriangle(v2, v4, v3);
+		fillBottomFlatTriangle(v1, v2, v4, triangle);
+	    fillTopFlatTriangle(v2, v4, v3, triangle);
 	}
 }
 
@@ -528,13 +548,65 @@ function drawLine(originX, originY, destinyX, destinyY ) {
     context.stroke();
 }
 
+function drawLinePhong(originX, destinyX, yPos, triangle) {
+	for (let i = originX;i <= destinyX;i++) {
+		if (shouldReplace([i, yPos], triangle)) {
+
+		}
+	}
+}
 // FIM DE FUNÇÕES PARA DESENHO
+
+// FUNÇÕES PARA Z-BUFFER
+function initializeZBuffer() {
+	var row = [], rows = [];
+	for (let i = 0;i < canvas.width;i++) row.push(NaN);
+
+	for (let i = 0;i < canvas.height;i++) rows.push(row);
+
+	return rows;
+}
+
+function shouldReplace(point, triangle) {
+	if (isNaN(zBuffer[point[0]][point[1]])) return true;
+	else {
+		var alfa, beta, gama;
+		
+		var a = points2D[triangle.triangle[0]], b = points2D[triangle.triangle[1]], c = points2D[triangle.triangle[2]];
+
+		var edgeAP = pointSubtraction(a, point), edgeBP = pointSubtraction(b, point), edgeCP = pointSubtraction(c, point),
+			edgeAB = pointSubtraction(a, b), edgeBC = pointSubtraction(b, c);
+
+		var areaCAP = (vectorNorm(vectorProduct(edgeAP, edgeCP)) / 2),
+			areaABP = (vectorNorm(vectorProduct(edgeAP, edgeBP)) / 2),
+			areaBCP = (vectorNorm(vectorProduct(edgeBP, edgeCP)) / 2),
+			areaABC = (vectorNorm(vectorProduct(edgeAB, edgeBC)) / 2);
+
+		alfa = (areaCAP / areaABC);
+		beta = (areaABP / areaABC);
+		gama = (areaBCP / areaABC);
+
+		var approximatePoint;
+
+		approximatePoint = pointByScalar(alfa, object.points[triangle.triangle[0]].point);
+		approximatePoint = pointSum(approximatePoint, pointByScalar(beta, object.points[triangle.triangle[1]].point));
+		approximatePoint = pointSum(approximatePoint, pointByScalar(gama, object.points[triangle.triangle[2]].point));
+
+		var currentDistance = vectorNorm(pointSubtraction(approximatePoint, camera.c));
+
+		if (currrentDistance < zBuffer[point[0]][point[1]]) {
+			zBuffer[point[0]][point[1]] = currentDistance;
+			return true;
+		} else return false;
+	}
+}
+// FIM DE FUNÇÕES PARA Z-BUFFER
 
 
 //EXECUÇÃO:
 var  object, camera, illumination,
 	objectInfo, cameraInfo, illuminationInfo,
-	points2D, canvas, context;
+	points2D, canvas, context, zBuffer;
 
 //window.onload para aguardar que os elementos sejam apropriadamente carregados.
 window.onload = () => {
