@@ -4,13 +4,14 @@
 
 // FUNÇÕES PRÉ-EXECUÇÃO
 function initializeZBuffer() {
-	var row = [], rows = [];
+	var screen = [];
+	var row = [];
 
-	for (let i = 0;i < canvas.width;i++) row.push({distance: NaN, color: 'rgb(128, 128, 128)'});
+	for (let i = 0;i < canvas.width;i++) row.push({distance: Infinity, color: 'rgb(128, 128, 128)'});
 
-	for (let i = 0;i < canvas.height;i++) rows.push(row);
+	for (let i = 0;i < canvas.height;i++) screen.push(row);
 
-	return rows;
+	return screen;
 }
 // FIM DE FUNÇÕES PRÉ-EXECUÇÃO
 
@@ -477,7 +478,7 @@ function sortPointsByY(array) {
 	});
 }
 
-function fillBottomFlatTriangle(v1, v2, v3) {
+function fillBottomFlatTriangle(v1, v2, v3, triangle) {
   var invslope1 = (v2[0] - v1[0]) / (v2[1] - v1[1]); 
   var invslope2 = (v3[0] - v1[0]) / (v3[1] - v1[1]);
 
@@ -485,14 +486,14 @@ function fillBottomFlatTriangle(v1, v2, v3) {
   var curx2 = v1[0];
 
   for (var scanlineY = v1[1]; scanlineY <= v2[1]; scanlineY++) {
-    drawLine(curx1, scanlineY, curx2, scanlineY);
+    drawLine(curx1, scanlineY, curx2, scanlineY, triangle);
     curx1 += invslope1;
     curx2 += invslope2;
   }
 }
 
 	
-function fillTopFlatTriangle(v1, v2, v3) {
+function fillTopFlatTriangle(v1, v2, v3, triangle) {
   var invslope1 = (v3[0] - v1[0]) / (v3[1] - v1[1]);
   var invslope2 = (v3[0] - v2[0]) / (v3[1] - v2[1]);
 
@@ -501,7 +502,7 @@ function fillTopFlatTriangle(v1, v2, v3) {
 
   for (var scanlineY = v3[1]; scanlineY > v1[1]; scanlineY--)
   {
-    drawLine(curx1, scanlineY, curx2, scanlineY);
+    drawLine(curx1, scanlineY, curx2, scanlineY, triangle);
     curx1 -= invslope1;
     curx2 -= invslope2;
   }
@@ -513,15 +514,15 @@ function drawTriangle(triangle) {
 	var v3 = points2D[triangle.triangle[2]]; //Ponto 3 do triângulo passado como parâmetro
 
 	if (v2[1] == v3[1]) { //Compara y dos pontos v2 e v3
-		fillBottomFlatTriangle(v1, v2, v3);
+		fillBottomFlatTriangle(v1, v2, v3, triangle);
 	} else if (v1[1] == v2[1]) { //Compara y dos pontos v1 e v2
-		fillTopFlatTriangle(v1, v2, v3);
+		fillTopFlatTriangle(v1, v2, v3, triangle);
 	} else {
 		var deltaY2perY3 = (v2[1] - v1[1]) / (v3[1] - v1[1]); 
 		var x4 = v1[0] + deltaY2perY3 * (v3[0] - v1[0]);
 		var v4 = [x4, v2[1], v2[2]];
-		fillBottomFlatTriangle(v1, v2, v4);
-	    fillTopFlatTriangle(v2, v4, v3);
+		fillBottomFlatTriangle(v1, v2, v4, triangle);
+	    fillTopFlatTriangle(v2, v4, v3, triangle);
 	}
 }
 
@@ -532,23 +533,94 @@ function drawObjectTriangles() {
 	}
 }
 
-function drawLine(originX, originY, destinyX, destinyY ) {
-	context.strokeStyle = "#000000";
-	context.beginPath();
-    context.moveTo(originX, originY);
-    context.lineTo(destinyX, destinyY);
-    context.stroke();
-}
-
-function drawHorizontalLine(origin, destiny, yPos, v1, v2, v3) {
-	for (let i = origin;i <= destiny;i++) {
-		
+function drawLine(originX, originY, destinyX, destinyY, triangle) {
+	for (var i = originX; i < destinyX; i++) {
+		drawPixel(i, originY, triangle);
 	}
 }
 
-function barycentricCoordinates(v1, v2, v3) {
-	for (let i in v1)
+function drawPixel(x, y, triangle) {
+	var v1 = points2D[triangle.triangle[0]]; //Ponto 1 do triângulo passado como parâmetro
+	var v2 = points2D[triangle.triangle[1]]; //Ponto 2 do triângulo passado como parâmetro
+	var v3 = points2D[triangle.triangle[2]]; //Ponto 3 do triângulo passado como parâmetro
+	var v1_3D = object.points.point[triangle.triangle[0]]; //Ponto 1 do triângulo passado como parâmetro
+	var v2_3D = object.points.point[triangle.triangle[1]]; //Ponto 2 do triângulo passado como parâmetro
+	var v3_3D = object.points.point[triangle.triangle[2]]; //Ponto 3 do triângulo passado como parâmetro
+
+	var baric_coordinates, p_3D;
+	baric_coordinates = getBaricCoordinates(v1, v2, v3, [x,y]);
+	p_3D = getPoint3D(v1_3D, v2_3D, v3_3D, baric_coordinates);
+
+	if (p_3D[2] < zBuffer[x][y].distance) {
+		zBuffer[x][y].distance = p_3D[2];
+		context.fillStyle = "#000000";
+   		context.fillRect(x, y, 1, 1);
+	}
 }
+
+function getPoint3D(v1, v2, v3, baric) { //Retorna P' a partir da multiplicação das coordenadas baricêntricas pelos vértices 3D
+	var x, y, z;
+	x = baric.alfa * v1[0] + baric.beta * v2[0] + baric.gama * v3[0];
+	y = baric.alfa * v1[1] + baric.beta * v2[1] + baric.gama * v3[1];
+	z = baric.alfa * v1[2] + baric.beta * v2[2] + baric.gama * v3[2];
+	return [x, y, z];
+}
+
+function getBaricCoordinates(v1, v2, v3, p) {	//Calcula coordenadas baricêntricas a partir dos vértices 2D
+	var baricCoordinates;
+
+	//MONTAGEM DA MATRIZ
+	var sysMatrix = [ [ 1, 1, 1, 1 ],
+   						  [ v1[0], v2[0], v3[0], p[0] ],
+   						  [ v1[1], v2[1], v3[1], p[1] ]];
+
+	//ESCALONAMENTO DA MATRIZ
+    var i=0, ii=0, j=0, heightM = sysMatrix.length, widthM = sysMatrix[0].length, e=0, t=0;	
+
+	// Operações elementares linha a linha
+    for(i=0; i<heightM; i+=1){
+        // Opera com o elemento 'e' da diagonal
+        e = sysMatrix[i][i];
+        
+        // se tivermos 0 na diagonal, trocamos com uma linha mais abaixo
+        if(e==0){
+            //procura por cada linha abaixo da linha i
+            for(ii=i+1; ii<heightM; ii+=1){
+                if(sysMatrix[ii][i] != 0){
+                    for(j=0; j<widthM; j++){
+                        e = sysMatrix[i][j];       
+                        sysMatrix[i][j] = sysMatrix[ii][j];
+                        sysMatrix[ii][j] = e;       
+                    }
+                    break;
+                }
+            }
+            e = sysMatrix[i][i];
+
+            if(e==0){return}
+        }
+        
+        // Dividimos linha toda por e, assim teremos 1 na diagonal
+        for(j=0; j<widthM; j++){
+            sysMatrix[i][j] = sysMatrix[i][j]/e; //apply to original matrix
+        }
+        
+        // Subtrai essa linha de todas as outras para obter 0 fora da diagonal
+        for(ii=0; ii<heightM; ii++){
+            if(ii==i){continue;}
+            
+            e = sysMatrix[ii][i];
+           	
+            for(j=0; j<widthM; j++){
+                sysMatrix[ii][j] -= e*sysMatrix[i][j]; 
+            }
+        }
+    }
+
+    baricCoordinates = {alfa: sysMatrix[0][3], beta: sysMatrix[1][3], gama: sysMatrix[2][3]};
+    return baricCoordinates;
+}
+
 // FIM DE FUNÇÕES PARA DESENHO
 
 
