@@ -558,6 +558,8 @@ function drawPixel(x, y, triangle) {
 		zBuffer[Math.floor(x)][Math.floor(y)].distance = p_3D[2];
 		context.fillStyle = "#000000";
    		context.fillRect(x, y, 1, 1);
+	} else {
+		console.log("z rejeitado " + p_3D[2] + ' ' + zBuffer[Math.floor(x)][Math.floor(y)].distance);
 	}
 }
 
