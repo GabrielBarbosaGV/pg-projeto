@@ -553,14 +553,11 @@ function drawPixel(x, y, triangle) {
 	baric_coordinates = getBaricCoordinates(v1, v2, v3, [x,y]);
 	p_3D = getPoint3D(v1_3D, v2_3D, v3_3D, baric_coordinates);
 
-	//console.log(Math.round(x));
 	if (p_3D[2] < zBuffer[Math.floor(x)][Math.floor(y)].distance) {
 		zBuffer[Math.floor(x)][Math.floor(y)].distance = p_3D[2];
 		context.fillStyle = "#000000";
    		context.fillRect(x, y, 1, 1);
-	} else {
-		console.log("z rejeitado " + p_3D[2] + ' ' + zBuffer[Math.floor(x)][Math.floor(y)].distance);
-	}
+	} 
 }
 
 function getPoint3D(v1, v2, v3, baric) { //Retorna P' a partir da multiplicação das coordenadas baricêntricas pelos vértices 3D
