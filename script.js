@@ -7,9 +7,9 @@ function initializeZBuffer() {
 	var screen = [];
 	var row = [];
 
-	for (let i = 0;i < canvas.width;i++) row.push({distance: Infinity, color: 'rgb(128, 128, 128)'});
+	for (let i = 0;i < canvas.height;i++) row.push({distance: Infinity, color: 'rgb(128, 128, 128)'}); //Coluna
 
-	for (let i = 0;i < canvas.height;i++) screen.push(row);
+	for (let i = 0;i < canvas.width;i++) screen.push(row);
 
 	return screen;
 }
@@ -518,11 +518,13 @@ function drawTriangle(triangle) {
 	} else if (v1[1] == v2[1]) { //Compara y dos pontos v1 e v2
 		fillTopFlatTriangle(v1, v2, v3, triangle);
 	} else {
-		var deltaY2perY3 = (v2[1] - v1[1]) / (v3[1] - v1[1]); 
-		var x4 = v1[0] + deltaY2perY3 * (v3[0] - v1[0]);
-		var v4 = [x4, v2[1], v2[2]];
-		fillBottomFlatTriangle(v1, v2, v4, triangle);
-	    fillTopFlatTriangle(v2, v4, v3, triangle);
+		var deltaY2perY3 = (v2[1] - v1[1]) / (v3[1] - v1[1]);
+		if (deltaY2perY3 != Infinity) {
+			var x4 = v1[0] + deltaY2perY3 * (v3[0] - v1[0]);
+			var v4 = [x4, v2[1], v2[2]];
+			fillBottomFlatTriangle(v1, v2, v4, triangle);
+	    	fillTopFlatTriangle(v2, v4, v3, triangle);
+		} 		
 	}
 }
 
@@ -543,16 +545,17 @@ function drawPixel(x, y, triangle) {
 	var v1 = points2D[triangle.triangle[0]]; //Ponto 1 do triângulo passado como parâmetro
 	var v2 = points2D[triangle.triangle[1]]; //Ponto 2 do triângulo passado como parâmetro
 	var v3 = points2D[triangle.triangle[2]]; //Ponto 3 do triângulo passado como parâmetro
-	var v1_3D = object.points.point[triangle.triangle[0]]; //Ponto 1 do triângulo passado como parâmetro
-	var v2_3D = object.points.point[triangle.triangle[1]]; //Ponto 2 do triângulo passado como parâmetro
-	var v3_3D = object.points.point[triangle.triangle[2]]; //Ponto 3 do triângulo passado como parâmetro
+	var v1_3D = object.points[triangle.triangle[0]].point; //Ponto 1 do triângulo passado como parâmetro
+	var v2_3D = object.points[triangle.triangle[1]].point; //Ponto 2 do triângulo passado como parâmetro
+	var v3_3D = object.points[triangle.triangle[2]].point; //Ponto 3 do triângulo passado como parâmetro
 
 	var baric_coordinates, p_3D;
 	baric_coordinates = getBaricCoordinates(v1, v2, v3, [x,y]);
 	p_3D = getPoint3D(v1_3D, v2_3D, v3_3D, baric_coordinates);
 
-	if (p_3D[2] < zBuffer[x][y].distance) {
-		zBuffer[x][y].distance = p_3D[2];
+	//console.log(Math.round(x));
+	if (p_3D[2] < zBuffer[Math.floor(x)][Math.floor(y)].distance) {
+		zBuffer[Math.floor(x)][Math.floor(y)].distance = p_3D[2];
 		context.fillStyle = "#000000";
    		context.fillRect(x, y, 1, 1);
 	}
